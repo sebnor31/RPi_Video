@@ -8,6 +8,8 @@
 #include <QUrl>
 #include <QUrlQuery>
 
+#include <QTcpSocket>
+
 namespace Ui {
 class MainWindow;
 }
@@ -22,11 +24,13 @@ public:
 
 private:
     Ui::MainWindow *ui;
-    QNetworkAccessManager mgr;
-
+    QNetworkAccessManager *mgr;
+    QTcpSocket *socket;
 
 private slots:
     void replyAvail(QNetworkReply *reply);
+    void tcpDataReceive();
+    void on_refreshBtn_clicked();
 };
 
 #endif // MAINWINDOW_H
