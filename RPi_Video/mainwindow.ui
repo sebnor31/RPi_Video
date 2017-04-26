@@ -16,13 +16,13 @@
   <widget class="QWidget" name="centralWidget">
    <layout class="QHBoxLayout" name="horizontalLayout_2" stretch="2,1">
     <item>
-     <layout class="QVBoxLayout" name="verticalLayout" stretch="1,20">
+     <layout class="QVBoxLayout" name="verticalLayout" stretch="0,20">
       <item>
-       <layout class="QHBoxLayout" name="horizontalLayout" stretch="1,5">
+       <layout class="QHBoxLayout" name="horizontalLayout" stretch="1,5,1">
         <item>
-         <widget class="QPushButton" name="refreshBtn">
+         <widget class="QPushButton" name="startBtn">
           <property name="text">
-           <string>Refresh</string>
+           <string>Start</string>
           </property>
          </widget>
         </item>
@@ -38,6 +38,35 @@
            </size>
           </property>
          </spacer>
+        </item>
+        <item>
+         <layout class="QHBoxLayout" name="fpsLay" stretch="1,1">
+          <item>
+           <widget class="QLabel" name="fpsLbl">
+            <property name="text">
+             <string>FPS:</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLineEdit" name="fpsInd">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="font">
+             <font>
+              <pointsize>16</pointsize>
+             </font>
+            </property>
+            <property name="readOnly">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+         </layout>
         </item>
        </layout>
       </item>

@@ -2,13 +2,8 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
-#include <QNetworkAccessManager>
-#include <QNetworkRequest>
-#include <QNetworkReply>
-#include <QUrl>
-#include <QUrlQuery>
-
 #include <QTcpSocket>
+#include <QTimer>
 
 namespace Ui {
 class MainWindow;
@@ -24,13 +19,23 @@ public:
 
 private:
     Ui::MainWindow *ui;
-    QNetworkAccessManager *mgr;
+
+    // Network
     QTcpSocket *socket;
+    QByteArray stream;
+
+    // FPS
+    quint16 frameCnter;
+    QTimer *timer;
 
 private slots:
-    void replyAvail(QNetworkReply *reply);
     void tcpDataReceive();
-    void on_refreshBtn_clicked();
+    void processStream();
+    void on_startBtn_clicked();
+    void updateFps();
+
+signals:
+    void updatedStream();
 };
 
 #endif // MAINWINDOW_H

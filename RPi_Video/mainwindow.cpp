@@ -1,7 +1,6 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
-#include <QDebug>
 #include <opencv2/core.hpp>
 #include <opencv2/imgcodecs.hpp>
 #include <opencv2/opencv.hpp>
@@ -17,60 +16,70 @@ MainWindow::MainWindow(QWidget *parent): QMainWindow(parent), ui(new Ui::MainWin
 
     socket = new QTcpSocket(this);
     connect(socket, SIGNAL(readyRead()), this, SLOT(tcpDataReceive()));
+    connect(this, &MainWindow::updatedStream, this, &MainWindow::processStream);
 }
 
-void MainWindow::replyAvail(QNetworkReply *reply)
+void MainWindow::on_startBtn_clicked()
 {
-    ui->logger->append("Read success!");
+    socket->connectToHost("169.254.0.2", 8080);
+    socket->write("GET /?action=stream\r\n\r\n");
 
-    if (reply->error() == QNetworkReply::NoError) {
-            //success
-            ui->logger->append(QString("Bytes Avail: %1").arg(reply->bytesAvailable()));
+    ui->startBtn->setEnabled(false);
 
-            QByteArray data = reply->readAll();
-            int startIdx = data.indexOf(QByteArray("\xff\xd8"));
-            int stopIdx = data.indexOf(QByteArray("\xff\xd9"));
+    timer = new QTimer(this);
+    timer->setInterval(1000);
+    connect(timer, &QTimer::timeout, this, &MainWindow::updateFps);
+}
 
-            ui->logger->append(QString("JPG: Start=%1, Stop=%2").arg(startIdx).arg(stopIdx));
-            cv::Mat jpg = cv::imdecode(std::vector<uchar>(data.begin(), data.end()), CV_LOAD_IMAGE_COLOR);
-            cv::cvtColor(jpg, jpg, CV_BGR2RGB);
-            QImage videoImg = QImage((uchar*)jpg.data, jpg.cols, jpg.rows, static_cast<int>(jpg.step), QImage::Format_RGB888);
-            QPixmap videoPixmap = QPixmap::fromImage(videoImg);
-
-            ui->videoFeed->setPixmap(videoPixmap);
-        }
-    else {
-        //failure
-         ui->logger->append("Failure: " + reply->errorString());
-    }
-
-    reply->deleteLater();
+void MainWindow::updateFps()
+{
+    ui->fpsInd->setText(QString::number(frameCnter));
+    frameCnter = 0;
 }
 
 void MainWindow::tcpDataReceive()
 {
-    ui->logger->append(QString("Bytes Avail: %1").arg(socket->bytesAvailable()));
-
-    // Find the indexes of start/stop of jpg dataload
-    // Then use imdecode to generate a Mat object for that image
-    // Transform that Mat to a QPixmap and display
-
-    // NOTE: How to read sequentially with proper fps, particularly when saving to file
-    // NOTE: When read, is it possible to get a timestamp for each frame?
-//    QByteArray data = QByteArray::fromHex(tcpSocket->readAll());
-
-
+    stream.append(socket->readAll());
+    emit updatedStream();
 }
 
-void MainWindow::on_refreshBtn_clicked()
+void MainWindow::processStream()
 {
-//   mgr->get(QNetworkRequest(QUrl("http://169.254.0.2:8080/?action=snapshot")));
+    int startIdx = stream.indexOf(QByteArray("\xff\xd8"));
+    int stopIdx = stream.indexOf(QByteArray("\xff\xd9"));
 
-   socket->connectToHost("169.254.0.2", 8080);
-   socket->write("GET /?action=stream\r\n\r\n");
+    if (startIdx != -1 && stopIdx != -1){
+        ui->logger->append(QString("JPG: Start=%1, Stop=%2").arg(startIdx).arg(stopIdx));
+
+        // Extract the first frame and Convert from QByteArray to cv::Mat object
+        QByteArray frame = stream.mid(startIdx, (stopIdx - startIdx) + 2);
+        cv::Mat matFrame(1, frame.size(), CV_8UC1, frame.data());
+
+        // Decode data to a JPG frame
+        cv::Mat jpg = cv::imdecode(matFrame, CV_LOAD_IMAGE_COLOR);
+        cv::cvtColor(jpg, jpg, CV_BGR2RGB);     // OpenCV uses BGR by default, need to convert to RGB
+
+        // Display the JPG image to our GUI video feed
+        QImage videoImg = QImage((uchar*)jpg.data, jpg.cols, jpg.rows, static_cast<int>(jpg.step), QImage::Format_RGB888);
+        QPixmap videoPixmap = QPixmap::fromImage(videoImg);
+        ui->videoFeed->setPixmap(videoPixmap);
+
+        // Remove this frame from our stream container to reduce memory consumption
+        stream.remove(0, stopIdx+1);
+
+        // Start FPS estimation only when a frame has been found for the 1st time
+        if (!timer->isActive()){
+            timer->start();
+        }
+        frameCnter++;
+    }
 }
 
 MainWindow::~MainWindow()
 {
+    timer->stop();
+    socket->disconnectFromHost();
     delete ui;
 }
+
+
