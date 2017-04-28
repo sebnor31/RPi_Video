@@ -2,8 +2,11 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
-#include <QTcpSocket>
-#include <QTimer>
+#include <QPixmap>
+#include <QThread>
+
+#include "videomgr.h"
+#include "voicemgr.h"
 
 namespace Ui {
 class MainWindow;
@@ -20,22 +23,20 @@ public:
 private:
     Ui::MainWindow *ui;
 
-    // Network
-    QTcpSocket *socket;
-    QByteArray stream;
+    // Video
+    QThread *videoTh;
+    VideoMgr *video;
 
-    // FPS
-    quint16 frameCnter;
-    QTimer *timer;
+    // Audio
+    QThread *voiceTh;
+    VoiceMgr *voice;
 
 private slots:
-    void tcpDataReceive();
-    void processStream();
     void on_startBtn_clicked();
-    void updateFps();
-
-signals:
-    void updatedStream();
+    void updateFps(quint16 fps);
+    void logToVideo(QString msg);
+    void logToAudio(QString msg);
+    void updateVideoFeed(QPixmap frame);
 };
 
 #endif // MAINWINDOW_H

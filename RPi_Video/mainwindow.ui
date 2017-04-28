@@ -92,9 +92,25 @@
      </layout>
     </item>
     <item>
-     <layout class="QVBoxLayout" name="verticalLayout_2" stretch="0">
+     <layout class="QVBoxLayout" name="verticalLayout_2" stretch="5,1,5">
       <item>
-       <widget class="QTextBrowser" name="logger"/>
+       <widget class="QTextBrowser" name="videoLogger"/>
+      </item>
+      <item>
+       <spacer name="verticalSpacer">
+        <property name="orientation">
+         <enum>Qt::Vertical</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>20</width>
+          <height>40</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item>
+       <widget class="QTextBrowser" name="audioLogger"/>
       </item>
      </layout>
     </item>
