@@ -7,6 +7,7 @@
 
 #include "videomgr.h"
 #include "voicemgr.h"
+#include "lsmmgr.h"
 
 namespace Ui {
 class MainWindow;
@@ -30,6 +31,10 @@ private:
     // Audio
     QThread *voiceTh;
     VoiceMgr *voice;
+
+    // LSM9D
+    QThread *lsmTh;
+    LsmMgr *lsm;
 
 private slots:
     void on_startBtn_clicked();

@@ -28,17 +28,29 @@ void MainWindow::on_startBtn_clicked()
     videoTh->start();
 
 
-    // Audio
-    voiceTh = new QThread(this);
-    voice = new VoiceMgr();
-    voice->moveToThread(voiceTh);
+//    // Audio
+//    voiceTh = new QThread(this);
+//    voice = new VoiceMgr();
+//    voice->moveToThread(voiceTh);
 
-    connect(voiceTh, &QThread::started, voice, &VoiceMgr::start);
-    connect(voice, &VoiceMgr::logMsg, this, &MainWindow::logToAudio);
-    connect(voiceTh, &QThread::finished, voice, &VoiceMgr::deleteLater);
-    connect(voice, &VoiceMgr::finished, voiceTh, &QThread::deleteLater);
+//    connect(voiceTh, &QThread::started, voice, &VoiceMgr::start);
+//    connect(voice, &VoiceMgr::logMsg, this, &MainWindow::logToAudio);
+//    connect(voiceTh, &QThread::finished, voice, &VoiceMgr::deleteLater);
+//    connect(voice, &VoiceMgr::finished, voiceTh, &QThread::deleteLater);
 
-    voiceTh->start();
+//    voiceTh->start();
+
+    // LSM9D
+    lsmTh = new QThread(this);
+    lsm = new LsmMgr();
+    lsm->moveToThread(lsmTh);
+
+    connect(lsmTh, &QThread::started, lsm, &LsmMgr::start);
+    connect(lsm, &LsmMgr::logMsg, this, &MainWindow::logToAudio);
+    connect(lsmTh, &QThread::finished, lsm, &LsmMgr::deleteLater);
+    connect(lsm, &LsmMgr::finished, lsmTh, &QThread::deleteLater);
+
+    lsmTh->start();
 
     // Disable start
     ui->startBtn->setEnabled(false);

@@ -14,11 +14,13 @@ TEMPLATE = app
 SOURCES += main.cpp\
         mainwindow.cpp \
     voicemgr.cpp \
-    videomgr.cpp
+    videomgr.cpp \
+    lsmmgr.cpp
 
 HEADERS  += mainwindow.h \
     voicemgr.h \
-    videomgr.h
+    videomgr.h \
+    lsmmgr.h
 
 FORMS    += mainwindow.ui
 
