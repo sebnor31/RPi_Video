@@ -2,16 +2,21 @@
 #define LSMMGR_H
 
 #include <QObject>
-#include <QUdpSocket>
+#include <QNetworkAccessManager>
+#include <QNetworkRequest>
+#include <QNetworkReply>
+#include <QTimer>
 
 class LsmMgr : public QObject
 {
     Q_OBJECT
 
 private:
+    QTimer *timer;
+
     // Network
-    QUdpSocket *socket;
-    QByteArray stream;
+    QNetworkAccessManager *manager;
+    QNetworkRequest request;
 
 public:
     explicit LsmMgr(QObject *parent = 0);
@@ -25,8 +30,9 @@ public slots:
     void start();
 
 private slots:
-    void stateChanged(QAbstractSocket::SocketState state);
-    void dataReceive();
+    void readData();
+    void logNetError(QNetworkReply::NetworkError err);
+    void dataReceive(QNetworkReply *reply);
 };
 
 #endif // LSMMGR_H

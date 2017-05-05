@@ -1,5 +1,5 @@
 #include "lsmmgr.h"
-#include <QNetworkDatagram>
+
 
 LsmMgr::LsmMgr(QObject *parent) : QObject(parent)
 {
@@ -8,58 +8,48 @@ LsmMgr::LsmMgr(QObject *parent) : QObject(parent)
 
 void LsmMgr::start()
 {
-    emit logMsg("Connecting to 169.254.0.2:5005");
+    QUrl rpi("http://192.168.1.172:8800/");
+    emit logMsg(QString("Connecting to %1").arg(rpi.toString()));
 
-    socket = new QUdpSocket(this);
-    socket->bind(QHostAddress("169.254.0.2"), 5005);
+    manager = new QNetworkAccessManager(this);
+    request.setUrl(rpi);
+    connect(manager, &QNetworkAccessManager::finished, this, &LsmMgr::dataReceive);
 
-    connect(socket, &QUdpSocket::readyRead, this, &LsmMgr::dataReceive);
-    connect(socket, &QUdpSocket::stateChanged, this, &LsmMgr::stateChanged);
-    emit logMsg("Waiting for Data....");
-
+    timer = new QTimer(this);
+    timer->setInterval(20);
+    connect(timer, &QTimer::timeout, this, &LsmMgr::readData);
+    timer->start();
 }
 
-void LsmMgr::stateChanged(QAbstractSocket::SocketState state)
+void LsmMgr::readData()
 {
-    QString msg = "";
+    manager->get(request);
+}
 
-    if (state == QAbstractSocket::UnconnectedState){
-        msg = "Unconnected";
+void LsmMgr::dataReceive(QNetworkReply* reply)
+{
+    if (reply->error() != QNetworkReply::NoError){
+        logNetError(reply->error());
     }
-    else if (state == QAbstractSocket::HostLookupState){
-        msg = "Host name lookup";
-    }
-    else if (state == QAbstractSocket::ConnectingState){
-        msg = "Estalishing connection...";
-    }
-    else if (state == QAbstractSocket::ConnectedState){
-        msg = "Connection established with host";
-        socket->write("GET /server_version.xsl\r\n\r\n");
-    }
-    else if (state == QAbstractSocket::BoundState){
-        msg = "Socket bound to an address and port";
-    }
-    else if (state == QAbstractSocket::ClosingState){
-        msg = "Closing connection";
-    }
-    else {
-        msg = "ERROR: State not recognized";
+    else{
+        QByteArray resp = reply->readAll();
+        emit logMsg(QString(resp));
     }
 
+    reply->deleteLater();
+}
+
+
+void LsmMgr::logNetError(QNetworkReply::NetworkError err)
+{
+    QString msg = QString("Network Error: %1").arg(err);
     emit logMsg(msg);
 }
 
-void LsmMgr::dataReceive()
-{
-    while (socket->hasPendingDatagrams()) {
-            QNetworkDatagram datagram = socket->receiveDatagram();
-            emit logMsg(QString("Received: %1").arg(datagram.data().size()));
-        }
-}
 
 LsmMgr::~LsmMgr()
 {
-    socket->disconnectFromHost();
+    timer->stop();
     emit logMsg("Exiting LSM Thread");
     emit finished();
 }
