@@ -13,19 +13,19 @@ MainWindow::MainWindow(QWidget *parent): QMainWindow(parent), ui(new Ui::MainWin
 
 void MainWindow::on_startBtn_clicked()
 {
-//    // Video
-//    videoTh = new QThread(this);
-//    video = new VideoMgr();
-//    video->moveToThread(videoTh);
+    // Video
+    videoTh = new QThread(this);
+    video = new VideoMgr();
+    video->moveToThread(videoTh);
 
-//    connect(videoTh, &QThread::started, video, &VideoMgr::start);
-//    connect(video, &VideoMgr::newFrameSig, this, &MainWindow::updateVideoFeed);
-//    connect(video, &VideoMgr::newFpsSig, this, &MainWindow::updateFps);
-//    connect(video, &VideoMgr::logMsg, this, &MainWindow::logToVideo);
-//    connect(videoTh, &QThread::finished, video, &VideoMgr::deleteLater);
-//    connect(video, &VideoMgr::finished, videoTh, &QThread::deleteLater);
+    connect(videoTh, &QThread::started, video, &VideoMgr::start);
+    connect(video, &VideoMgr::newFrameSig, this, &MainWindow::updateVideoFeed);
+    connect(video, &VideoMgr::newFpsSig, this, &MainWindow::updateFps);
+    connect(video, &VideoMgr::logMsg, this, &MainWindow::logToVideo);
+    connect(videoTh, &QThread::finished, video, &VideoMgr::deleteLater);
+    connect(video, &VideoMgr::finished, videoTh, &QThread::deleteLater);
 
-//    videoTh->start();
+    videoTh->start();
 
 
 //    // Audio
@@ -78,11 +78,11 @@ void MainWindow::updateVideoFeed(QPixmap frame)
 
 MainWindow::~MainWindow()
 {
-//    videoTh->quit();
+    videoTh->quit();
 //    voiceTh->quit();
     lsmTh->quit();
 
-//    videoTh->wait();
+    videoTh->wait();
 //    voiceTh->wait();
     lsmTh->wait();
 
