@@ -40,17 +40,17 @@ void MainWindow::on_startBtn_clicked()
 
 //    voiceTh->start();
 
-    // LSM9D
-    lsmTh = new QThread(this);
-    lsm = new LsmMgr();
-    lsm->moveToThread(lsmTh);
+//    // LSM9D
+//    lsmTh = new QThread(this);
+//    lsm = new LsmMgr();
+//    lsm->moveToThread(lsmTh);
 
-    connect(lsmTh, &QThread::started, lsm, &LsmMgr::start);
-    connect(lsm, &LsmMgr::logMsg, this, &MainWindow::logToAudio);
-    connect(lsmTh, &QThread::finished, lsm, &LsmMgr::deleteLater);
-    connect(lsm, &LsmMgr::finished, lsmTh, &QThread::deleteLater);
+//    connect(lsmTh, &QThread::started, lsm, &LsmMgr::start);
+//    connect(lsm, &LsmMgr::logMsg, this, &MainWindow::logToAudio);
+//    connect(lsmTh, &QThread::finished, lsm, &LsmMgr::deleteLater);
+//    connect(lsm, &LsmMgr::finished, lsmTh, &QThread::deleteLater);
 
-    lsmTh->start();
+//    lsmTh->start();
 
     // Disable start
     ui->startBtn->setEnabled(false);

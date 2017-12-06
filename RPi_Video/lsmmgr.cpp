@@ -8,7 +8,7 @@ LsmMgr::LsmMgr(QObject *parent) : QObject(parent)
 
 void LsmMgr::start()
 {
-    QUrl rpi("http://192.168.1.172:8800/");
+    QUrl rpi("http://169.254.0.2:8800/");
     emit logMsg(QString("Connecting to %1").arg(rpi.toString()));
 
     manager = new QNetworkAccessManager(this);

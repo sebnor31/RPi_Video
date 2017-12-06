@@ -17,7 +17,7 @@ void VideoMgr::start()
     connect(this, &VideoMgr::updatedStream, this, &VideoMgr::processStream);
     connect(socket, &QTcpSocket::stateChanged, this, &VideoMgr::stateChanged);
 
-    socket->connectToHost("169.254.0.2", 8080);
+    socket->connectToHost("192.168.7.2", 8080);
     socket->write("GET /?action=stream\r\n\r\n");
 
     timer = new QTimer(this);
